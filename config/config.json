@@ -1,0 +1,23 @@
+{
+  "development": {
+    "username": "algol",
+    "password": "algol007",
+    "database": "pos-app",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  },
+  "test": {
+    "username": "algol",
+    "password": "algol007",
+    "database": "pos-app",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  },
+  "production": {
+    "username": "algol",
+    "password": "algol007",
+    "database": "pos-app",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  }
+}
