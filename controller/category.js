@@ -19,7 +19,9 @@ exports.addCategory = (req, res, next) => {
 };
 
 exports.getAllCategories = (req, res, next) => {
-  Categories.findAll()
+  Categories.findAndCountAll({
+    exclude: ["createdAt", "updatedAt"],
+  })
     .then(data => {
       res.status(200).send({
         Categories: data
@@ -47,7 +49,8 @@ exports.getCategoryById = async (req, res, next) => {
         .findOne({
           where: {
             id: categoryId
-          }
+          },
+          exclude: ["createdAt", "updatedAt"],
         })
         .then(data => {
           res.status(200).send({

@@ -1,5 +1,6 @@
 require('dotenv').config();
 const Products = require('../models').product;
+const Categories = require('../models').category;
 const { ErrorHandler } = require('../helper/error');
 
 exports.addProduct = (req, res, next) => {
@@ -7,7 +8,7 @@ exports.addProduct = (req, res, next) => {
     .create({
       name: req.body.name,
       price: req.body.price,
-      image: req.body.image,
+      image: `http://localhost:5000/uploads/${req.file.filename}`,
       categoryId: req.body.categoryId
     })
     .then(data => {
@@ -22,7 +23,11 @@ exports.addProduct = (req, res, next) => {
 };
 
 exports.getAllProducts = (req, res, next) => {
-  Products.findAll()
+  Products
+    .findAndCountAll({
+      exclude: ["createdAt", "updatedAt"],
+      include: { model: Categories, as: "productCategory", attributes: ["name"] },
+    })
     .then(data => {
       res.status(200).send({
         products: data
@@ -50,7 +55,9 @@ exports.getProductById = async (req, res, next) => {
         .findOne({
           where: {
             id: productId
-          }
+          },
+          exclude: ["createdAt", "updatedAt"],
+          include: { model: Categories, as: "productCategory", attributes: ["name"] },
         })
         .then(data => {
           res.status(200).send({
@@ -77,7 +84,7 @@ exports.updateProduct = async (req, res, next) => {
         .update({
           name: req.body.name,
           price: req.body.price,
-          image: req.body.image,
+          image: `http://localhost:5000/uploads/${req.file.filename}`,
           categoryId: req.body.categoryId
         }, {
           where: {

@@ -10,6 +10,11 @@ module.exports = (sequelize, DataTypes) => {
   }, {});
   user.associate = function(models) {
     // associations can be defined here
+    user.hasMany(models.order, {
+      foreignKey: 'id',
+      as: 'userOrder',
+      sourceKey: 'id'
+    });
   };
   return user;
 };

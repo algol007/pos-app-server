@@ -20,7 +20,9 @@ exports.addCostumer = (req, res, next) => {
 };
 
 exports.getAllCostumers = (req, res, next) => {
-  Costumers.findAll()
+  Costumers.findAndCountAll({
+    exclude: ["createdAt", "updatedAt"],
+  })
     .then(data => {
       res.status(200).send({
         costumers: data
@@ -48,7 +50,8 @@ exports.getCostumerById = async (req, res, next) => {
         .findOne({
           where: {
             id: costumerId
-          }
+          },
+          exclude: ["createdAt", "updatedAt"],
         })
         .then(data => {
           res.status(200).send({
