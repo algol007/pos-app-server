@@ -2,7 +2,7 @@ require('dotenv').config();
 const Users = require('../models').user;
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { ErrorHandler } = require('../helper/error');
+const {ErrorHandler} = require('../helper/error');
 const sendEmail = require('../helper/sendEmail');
 
 exports.signUp = (req, res, next) => {
@@ -12,21 +12,22 @@ exports.signUp = (req, res, next) => {
       name: req.body.name,
       email: req.body.email,
       password: bcrypt.hashSync(req.body.password, salt),
+      image: 'http://localhost:5000/uploads/default-user.jpg',
       role: req.body.role || 'user',
       status: 1,
-      image: req.body.image
     })
     .then(data => {
       const token = jwt.sign({
         id: data.id
       }, process.env.SECRET_KEY);
+      // sendEmail(token);
       res.status(201).send({
         user: data,
         message: 'User has been created!'
       });
     })
-    .catch(() => {
-      throw new ErrorHandler(500, 'Internal server error');
+    .catch((error) => {
+      console.log(error);
     });
 };
 
@@ -78,7 +79,9 @@ exports.signIn = async (req, res, next) => {
 };
 
 exports.getAllUsers = (req, res, next) => {
-  Users.findAll()
+  Users.findAndCountAll({
+    exclude: ["createdAt", "updatedAt"],
+  })
     .then(data => {
       res.status(200).send({
         users: data
@@ -106,7 +109,8 @@ exports.getUserById = async (req, res, next) => {
         .findOne({
           where: {
             id: userId
-          }
+          },
+          exclude: ["createdAt", "updatedAt"],
         })
         .then(data => {
           // const token = jwt.sign({
@@ -173,7 +177,7 @@ exports.updateUser = async (req, res, next) => {
           password: bcrypt.hashSync(req.body.password, salt),
           role: req.body.role || 'user',
           status: 1,
-          image: req.body.image              
+          image: `http://localhost:5000/uploads/${req.file.filename}`,
         }, {
           where: {
             id: userId

@@ -1,5 +1,7 @@
 require('dotenv').config();
 const Orders = require('../models').order;
+const Users = require('../models').user;
+const Costumers = require('../models').costumer;
 const { ErrorHandler } = require('../helper/error');
 
 exports.addOrder = (req, res, next) => {
@@ -22,7 +24,13 @@ exports.addOrder = (req, res, next) => {
 };
 
 exports.getAllOrders = (req, res, next) => {
-  Orders.findAll()
+  Orders.findAndCountAll({
+    exclude: ["createdAt", "updatedAt"],
+    include: [
+      { model: Users, as: "userOrder", attributes: ["name"] },
+      { model: Costumers, as: "costumerOrder", attributes: ["name", "email"] }
+    ],
+  })
     .then(data => {
       res.status(200).send({
         orders: data
@@ -50,7 +58,12 @@ exports.getOrderById = async (req, res, next) => {
         .findOne({
           where: {
             id: orderId
-          }
+          },
+          exclude: ["createdAt", "updatedAt"],
+          include: [
+            { model: Users, as: "userOrder", attributes: ["name"] },
+            { model: Costumers, as: "costumerOrder", attributes: ["name", "email"] }
+          ],
         })
         .then(data => {
           res.status(200).send({

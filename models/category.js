@@ -5,6 +5,11 @@ module.exports = (sequelize, DataTypes) => {
   }, {});
   category.associate = function(models) {
     // associations can be defined here
+    category.hasMany(models.product, {
+      foreignKey: 'id',
+      as: 'productCategory',
+      sourceKey: 'id'
+    });
   };
   return category;
 };
