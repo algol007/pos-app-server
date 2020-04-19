@@ -2,8 +2,9 @@ require('dotenv').config();
 const Users = require('../models').user;
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const {ErrorHandler} = require('../helper/error');
-const sendEmail = require('../helper/sendEmail');
+const { ErrorHandler } = require('../helper/error');
+// const sendEmail = require('../helper/sendEmail');
+const nodemailer = require('nodemailer');
 
 exports.signUp = (req, res, next) => {
   const salt = bcrypt.genSaltSync(10);
@@ -14,13 +15,34 @@ exports.signUp = (req, res, next) => {
       password: bcrypt.hashSync(req.body.password, salt),
       image: 'http://localhost:5000/uploads/default-user.jpg',
       role: req.body.role || 'user',
-      status: 1,
+      status: 0,
     })
     .then(data => {
-      const token = jwt.sign({
-        id: data.id
-      }, process.env.SECRET_KEY);
-      // sendEmail(token);
+      const token = jwt.sign( {id: data.id}, process.env.SECRET_KEY );
+
+      var transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: process.env.EMAIL,
+          pass: process.env.PASS,
+        }
+      });
+
+      var mailOptions = {
+        from: process.env.EMAIL,
+        to: req.body.email,
+        subject: 'LIBRARY APP',
+        html: `Click this link to activate your account <a href="http://localhost:8080/auth/login?token=${token}">Activate Account</a>`
+      };
+
+      transporter.sendMail(mailOptions, function(error, info){
+        if (error) {
+          console.log(error);
+        } else {
+          console.log('Email sent: ' + info.response);
+        }
+      });
+
       res.status(201).send({
         user: data,
         message: 'User has been created!'
@@ -92,6 +114,23 @@ exports.getAllUsers = (req, res, next) => {
     });
 };
 
+exports.checkUsers = async (req, res, next) => {
+  try {
+    const user = await Users.findOne({
+      where: {
+        email: req.body.email
+      }
+    });
+    if (!user) {
+      next();
+    } else {
+      throw new ErrorHandler(403, 'User has been registered! Please signin')
+    }
+  } catch(error) {
+    next(error);
+  }
+};
+
 exports.getUserById = async (req, res, next) => {
   const userId = req.params.userId;
 
@@ -143,7 +182,7 @@ exports.userActivation = (req, res, next) => {
   }
   Users
     .update({
-      isActive: 1
+      status: 1
     }, {
       where: {
         id: req.userId
@@ -224,4 +263,3 @@ exports.deleteUser = async (req, res, next) => {
     next(error);
   }
 };
-

@@ -2,6 +2,7 @@ require('dotenv').config();
 const Products = require('../models').product;
 const Categories = require('../models').category;
 const { ErrorHandler } = require('../helper/error');
+const { Op } = require("sequelize");
 
 exports.addProduct = (req, res, next) => {
   Products
@@ -23,19 +24,41 @@ exports.addProduct = (req, res, next) => {
 };
 
 exports.getAllProducts = (req, res, next) => {
-  Products
-    .findAndCountAll({
-      exclude: ["createdAt", "updatedAt"],
-      include: { model: Categories, as: "productCategory", attributes: ["name"] },
-    })
-    .then(data => {
-      res.status(200).send({
-        products: data
+  const search = req.query.search;
+  if (search) {
+    Products
+      .findAndCountAll({
+        where: {
+          [Op.or]: [
+            { name: { [Op.substring]: search } },
+          ]
+        },
+        exclude: ["createdAt", "updatedAt"],
+        include: { model: Categories, as: "productCategory", attributes: ["name"] },
+      })
+      .then(data => {
+        res.status(200).send({
+          products: data
+        });
+      })
+      .catch(() => {
+        throw new ErrorHandler(500, 'Internal server error');
       });
-    })
-    .catch(() => {
-      throw new ErrorHandler(500, 'Internal server error');
-    });
+  } else {
+    Products
+      .findAndCountAll({
+        exclude: ["createdAt", "updatedAt"],
+        include: { model: Categories, as: "productCategory", attributes: ["name"] },
+      })
+      .then(data => {
+        res.status(200).send({
+          products: data
+        });
+      })
+      .catch(() => {
+        throw new ErrorHandler(500, 'Internal server error');
+      });
+    }
 };
 
 exports.getProductById = async (req, res, next) => {
@@ -132,4 +155,3 @@ exports.deleteProduct = async (req, res, next) => {
     next(error);
   }
 };
-
