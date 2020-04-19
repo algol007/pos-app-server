@@ -25,6 +25,7 @@ exports.addOrder = (req, res, next) => {
 
 exports.getAllOrders = (req, res, next) => {
   Orders.findAndCountAll({
+    order: [["createdAt", 'DESC']],
     exclude: ["createdAt", "updatedAt"],
     include: [
       { model: Users, as: "userOrder", attributes: ["name"] },
@@ -138,4 +139,3 @@ exports.deleteOrder = async (req, res, next) => {
     next(error);
   }
 };
-
