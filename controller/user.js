@@ -31,7 +31,7 @@ exports.signUp = (req, res, next) => {
       var mailOptions = {
         from: process.env.EMAIL,
         to: req.body.email,
-        subject: 'LIBRARY APP',
+        subject: 'POS APP',
         html: `Click this link to activate your account <a href="http://localhost:8080/auth/login?token=${token}">Activate Account</a>`
       };
 
@@ -84,6 +84,7 @@ exports.signIn = async (req, res, next) => {
                 res.status(200).send({
                   user: data.id,
                   token: token,
+                  role: data.role,
                   message: 'Login Successfuly!'
                 });
               } else {
