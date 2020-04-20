@@ -1,6 +1,7 @@
 require('dotenv').config();
 const Costumers = require('../models').costumer;
 const { ErrorHandler } = require('../helper/error');
+const nodemailer = require('nodemailer');
 
 exports.addCostumer = (req, res, next) => {
   Costumers
@@ -13,6 +14,30 @@ exports.addCostumer = (req, res, next) => {
         costumer: data,
         message: 'Costumer has been created!'
       });
+
+      var transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: process.env.EMAIL,
+          pass: process.env.PASS,
+        }
+      });
+
+      var mailOptions = {
+        from: process.env.EMAIL,
+        to: req.body.email,
+        subject: 'POS APP',
+        html: 'Hello there, this is your receipt from POS-APP',
+      };
+
+      transporter.sendMail(mailOptions, function(error, info){
+        if (error) {
+          console.log(error);
+        } else {
+          console.log('Email sent: ' + info.response);
+        }
+      });
+
     })
     .catch(() => {
       throw new ErrorHandler(500, 'Internal server error');
@@ -124,4 +149,3 @@ exports.deleteCostumer = async (req, res, next) => {
     next(error);
   }
 };
-
