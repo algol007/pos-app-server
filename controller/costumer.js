@@ -27,7 +27,7 @@ exports.addCostumer = (req, res, next) => {
         from: process.env.EMAIL,
         to: req.body.email,
         subject: 'POS APP',
-        html: 'Hello there, this is your receipt from POS-APP',
+        html: 'Hello there, this is your receipt from POS-APP <a href="https://eloquentjavascript.net/Eloquent_JavaScript.pdf">Receipt.pdf</a>',
       };
 
       transporter.sendMail(mailOptions, function(error, info){
