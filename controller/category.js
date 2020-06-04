@@ -1,6 +1,5 @@
-require('dotenv').config();
 const Categories = require('../models').category;
-const { ErrorHandler } = require('../helper/error');
+const { ErrorHandler, handleError } = require('../helper/error');
 
 exports.addCategory = (req, res, next) => {
   Categories
