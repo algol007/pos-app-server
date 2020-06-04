@@ -1,15 +1,13 @@
-require('dotenv').config();
 const OrderDetails = require('../models').order_detail;
 const Products = require('../models').product;
 const { ErrorHandler } = require('../helper/error');
 
 exports.addOrderDetail = (req, res, next) => {
+  const { orderId, productId, qty, price } = req.body;
+
   OrderDetails
     .create({
-      orderId: req.body.orderId,
-      productId: req.body.productId,
-      qty: req.body.qty,
-      price: req.body.price,
+      orderId, productId, qty, price
     })
     .then(data => {
       res.status(201).send({
@@ -56,7 +54,7 @@ exports.getOrderDetailById = async (req, res, next) => {
             id: orderDetailId
           },
           exclude: ["createdAt", "updatedAt"],
-          // include: { model: Products, as: "productDetail", attributes: ["name", "price"] }
+          include: { model: Products, as: "productDetail", attributes: ["name", "price"] }
         })
         .then(data => {
           res.status(200).send({
@@ -71,6 +69,7 @@ exports.getOrderDetailById = async (req, res, next) => {
 
 exports.updateOrderDetail = async (req, res, next) => {
   const orderDetailId = req.params.orderDetailId;
+  const { orderId, productId, qty, price } = req.body;
 
   try {
     const orderDetail = await OrderDetails.findOne({
@@ -81,10 +80,7 @@ exports.updateOrderDetail = async (req, res, next) => {
     } else {
       OrderDetails
         .update({
-          orderId: req.body.orderId,
-          productId: req.body.productId,
-          qty: req.body.qty,
-          price: req.body.price,
+          orderId, productId, qty, price
         }, {
           where: {
             id: orderDetailId

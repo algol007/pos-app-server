@@ -3,7 +3,7 @@ const app = express();
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const { ErrorHandler } = require('./helper/error');
+const { handleError, ErrorHandler } = require("./helper/error");
 
 app.use(cors());
 app.use(morgan('dev'));
@@ -18,8 +18,16 @@ require('./router/order_detail')(app);
 require('./router/product')(app);
 require('./router/user')(app);
 
-app.get('*', (req, res) => {
-  throw new ErrorHandler(404, 'Page not found!')
+app.get("/error", (err, req, res, next) => {
+  throw new ErrorHandler(500, "Internal server error");
+});
+
+app.get("*", (req, res) => {
+  throw new ErrorHandler(404, "Page Not Found");
+});
+
+app.use((err, req, res, next) => {
+  handleError(err, res);
 });
 
 module.exports = app;

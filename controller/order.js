@@ -1,16 +1,14 @@
-require('dotenv').config();
 const Orders = require('../models').order;
 const Users = require('../models').user;
 const Costumers = require('../models').costumer;
 const { ErrorHandler } = require('../helper/error');
 
 exports.addOrder = (req, res, next) => {
+  const { costumerId, userId, total, invoice } = req.body;
+
   Orders
     .create({
-      costumerId: req.body.costumerId,
-      userId: req.body.userId,
-      total: req.body.total,
-      invoice: req.body.invoice
+      costumerId, userId, total, invoice
     })
     .then(data => {
       res.status(201).send({
@@ -79,6 +77,7 @@ exports.getOrderById = async (req, res, next) => {
 
 exports.updateOrder = async (req, res, next) => {
   const orderId = req.params.orderId;
+  const { costumerId, userId, total, invoice } = req.body;
 
   try {
     const order = await Orders.findOne({
@@ -89,10 +88,7 @@ exports.updateOrder = async (req, res, next) => {
     } else {
       Orders
         .update({
-          costumerId: req.body.costumerId,
-          userId: req.body.userId,
-          total: req.body.total,
-          invoice: req.body.invoice
+          costumerId, userId, total, invoice
         }, {
           where: {
             id: orderId

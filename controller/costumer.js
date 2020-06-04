@@ -1,43 +1,17 @@
-require('dotenv').config();
 const Costumers = require('../models').costumer;
 const { ErrorHandler } = require('../helper/error');
-const nodemailer = require('nodemailer');
 
 exports.addCostumer = (req, res, next) => {
+  const { name, email } = req.body;
   Costumers
     .create({
-      name: req.body.name,
-      email: req.body.email,
+      name, email
     })
     .then(data => {
       res.status(201).send({
         costumer: data,
         message: 'Costumer has been created!'
       });
-
-      var transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          user: process.env.EMAIL,
-          pass: process.env.PASS,
-        }
-      });
-
-      var mailOptions = {
-        from: process.env.EMAIL,
-        to: req.body.email,
-        subject: 'POS APP',
-        html: 'Hello there, this is your receipt from POS-APP <a href="https://eloquentjavascript.net/Eloquent_JavaScript.pdf">Receipt.pdf</a>',
-      };
-
-      transporter.sendMail(mailOptions, function(error, info){
-        if (error) {
-          console.log(error);
-        } else {
-          console.log('Email sent: ' + info.response);
-        }
-      });
-
     })
     .catch(() => {
       throw new ErrorHandler(500, 'Internal server error');
@@ -91,6 +65,7 @@ exports.getCostumerById = async (req, res, next) => {
 
 exports.updateCostumer = async (req, res, next) => {
   const costumerId = req.params.costumerId;
+  const { name, email } = req.body;
 
   try {
     const costumer = await Costumers.findOne({
@@ -101,8 +76,7 @@ exports.updateCostumer = async (req, res, next) => {
     } else {
       Costumers
         .update({
-          name: req.body.name,
-          email: req.body.email,
+          name, email
         }, {
           where: {
             id: costumerId
