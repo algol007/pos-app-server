@@ -47,11 +47,17 @@ exports.signIn = async (req, res, next) => {
                 message: "Login Successfuly!",
               });
             } else {
-              throw new ErrorHandler(401, "Please activate your email.");
+              res.status(200).send({
+                status: 2,
+                message: "Please activate your email!",
+              });
             }
           } else {
-            throw new ErrorHandler(401, "Wrong Password.");
-          }
+            res.status(200).send({
+              status: 3,
+              message: "Wrong Password!",
+            });
+        }
         }
       });
     }
